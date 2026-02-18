@@ -165,7 +165,7 @@ namespace karabo {
         if (m_chunk_mode) {
             return AravisBaslerBase::get_timestamp(buffer, ts, "BslChunkTimestampValue");
         } else {
-            return;
+            return false;
         }
     }
 
