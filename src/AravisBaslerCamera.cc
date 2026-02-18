@@ -146,13 +146,15 @@ namespace karabo {
                 const std::string message("Timestamp synchronization loss -> reset timestamp");
                 KARABO_LOG_WARN << message;
                 this->set("status", message);
-                arv_camera_execute_command(m_camera, "GevTimestampControlReset", nullptr);
-                arv_camera_execute_command(m_camera, "GevTimestampControlLatchReset", nullptr);
+                if (m_is_gv_device) { // GEV camera
+                    arv_camera_execute_command(m_camera, "GevTimestampControlReset", nullptr);
+                    arv_camera_execute_command(m_camera, "GevTimestampControlLatchReset", nullptr);
+                } else { // USB3V camera
+                    arv_camera_execute_command(m_camera, "TimestampReset", nullptr);
+                }
                 m_last_clock_reset.now();
             }
         }
-
-        m_tick_frequency = this->get<int>("gevTimestampTickFrequency");
 
         // Karabo current timestamp
         m_reference_karabo_time = this->getActualTimestamp();
@@ -160,9 +162,16 @@ namespace karabo {
         // Get current timestamp on the camera.
         // It has been verified on an acA640-120gm that this takes 1 ms ca.,
         // thus this is the precision we can aim to in the synchronization.
-        arv_camera_execute_command(m_camera, "GevTimestampControlLatch", &error);
-        if (error == nullptr) {
-            m_reference_camera_timestamp = arv_camera_get_integer(m_camera, "GevTimestampValue", &error);
+        if (m_is_gv_device) { // GEV camera
+            arv_camera_execute_command(m_camera, "GevTimestampControlLatch", &error);
+            if (error == nullptr) {
+                m_reference_camera_timestamp = arv_camera_get_integer(m_camera, "GevTimestampValue", &error);
+            }
+        } else { // USB3V camera
+            arv_camera_execute_command(m_camera, "TimestampLatch", &error);
+            if (error == nullptr) {
+                m_reference_camera_timestamp = arv_camera_get_integer(m_camera, "TimestampLatchValue", &error);
+            }
         }
 
         if (error != nullptr) {
@@ -195,6 +204,22 @@ namespace karabo {
 
         m_chunk_mode = true;
         return true; // success
+    }
+
+    int AravisBaslerCamera::get_tick_frequency() {
+        if (m_is_gv_device) {
+            // On GEV cameras the value of the tick frequency is 125 MHz with PTP disabled,
+            // 1 GHz with PTP enabled, see https://docs.baslerweb.com/timestamp#how-it-works
+            boost::mutex::scoped_lock camera_lock(m_camera_mtx);
+            const int tickFrequency =
+                  arv_device_get_integer_feature_value(m_device, "GevTimestampTickFrequency", nullptr);
+            return tickFrequency;
+        } else if (m_is_uv_device) {
+            // Tick frequency for USB models is always 1 GHz
+            return 1'000'000'000;
+        }
+
+        return 0;
     }
 
     bool AravisBaslerCamera::get_timestamp(ArvBuffer* buffer, karabo::data::Timestamp& ts) {

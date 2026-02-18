@@ -77,8 +77,9 @@ namespace karabo {
         virtual void postReconfigure() override;
 
        protected:
-        bool m_is_base_class; // false for derived classes
-        bool m_is_gv_device;
+        bool m_is_base_class;      // False for derived classes
+        bool m_is_gv_device;       // True for GEV cameras
+        bool m_is_uv_device;       // True for USB3V cameras
         bool m_arv_camera_trigger; // Use arv_camera to access trigger
         bool m_is_device_reset_available;
         bool m_is_frame_count_available;
@@ -96,11 +97,13 @@ namespace karabo {
         bool m_chunk_mode;
         karabo::data::Timestamp m_reference_karabo_time;
 
+        int m_tick_frequency;
         gint m_width;
         gint m_height;
         guint m_buffer_size;
         ArvPixelFormat m_format;
         virtual bool get_region(gint& x, gint& y, gint& width, gint& height);
+        virtual int get_tick_frequency();
         virtual bool get_timestamp(ArvBuffer* buffer, karabo::data::Timestamp& ts);
 
         bool is_frame_count_available() const;

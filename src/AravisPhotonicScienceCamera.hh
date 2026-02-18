@@ -35,6 +35,8 @@ namespace karabo {
 
         bool get_region(gint& x, gint& y, gint& width, gint& height) override;
 
+        int get_tick_frequency() override;
+
         bool get_timestamp(ArvBuffer* buffer, karabo::data::Timestamp& ts) override;
 
         bool is_flip_y_available() const override;

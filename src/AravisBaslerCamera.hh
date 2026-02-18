@@ -34,6 +34,8 @@ namespace karabo {
 
         bool configure_timestamp_chunk() override;
 
+        int get_tick_frequency() override;
+
         bool get_timestamp(ArvBuffer* buffer, karabo::data::Timestamp& ts) override;
 
        private:

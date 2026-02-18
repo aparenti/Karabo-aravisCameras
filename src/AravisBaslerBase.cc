@@ -134,16 +134,6 @@ namespace karabo {
               .allowedStates(State::UNKNOWN, State::ON)
               .commit();
 
-        INT32_ELEMENT(expected)
-              .key("gevTimestampTickFrequency")
-              .alias("GevTimestampTickFrequency")
-              .tags("genicam")
-              .displayedName("Tick Frequency")
-              .description("This value indicates the number of clock ticks per second.")
-              .unit(Unit::HERTZ)
-              .readOnly()
-              .commit();
-
         // **************************************************************************************************************
         //                                   READ ONLY HARDWARE PARAMETERS
         // **************************************************************************************************************
@@ -178,8 +168,7 @@ namespace karabo {
               .commit();
     }
 
-    AravisBaslerBase::AravisBaslerBase(const karabo::data::Hash& config)
-        : AravisCamera(config), m_ptp_enabled(false), m_tick_frequency(0) {
+    AravisBaslerBase::AravisBaslerBase(const karabo::data::Hash& config) : AravisCamera(config), m_ptp_enabled(false) {
         m_is_base_class = false;
         this->registerScene(std::bind(&AravisBaslerBase::aravisBaslerScene, this), "scene");
     }

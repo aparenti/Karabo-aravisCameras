@@ -516,8 +516,6 @@ namespace karabo {
         GError* error = nullptr;
         double camera_timestamp;
 
-        const int tick_frequency = this->get<int>("gevTimestampTickFrequency");
-
         boost::mutex::scoped_lock camera_lock(m_camera_mtx);
 
         // Get current timestamp on the camera (GevTimestampValue).
@@ -539,7 +537,7 @@ namespace karabo {
         m_reference_karabo_time = this->getActualTimestamp();
 
         // Camera current timestamp (s)
-        m_reference_camera_timestamp = camera_timestamp / tick_frequency;
+        m_reference_camera_timestamp = camera_timestamp / m_tick_frequency;
 
         return true; // success
     }
@@ -648,6 +646,17 @@ namespace karabo {
                 g_clear_error(&error);
             }
         }
+    }
+
+    int AravisPhotonicScienceCamera::get_tick_frequency() {
+        if (m_is_gv_device) {
+            boost::mutex::scoped_lock camera_lock(m_camera_mtx);
+            const int tickFrequency =
+                  arv_device_get_integer_feature_value(m_device, "GevTimestampTickFrequency", nullptr);
+            return tickFrequency;
+        }
+
+        return 0;
     }
 
     bool AravisPhotonicScienceCamera::is_flip_y_available() const {

@@ -252,6 +252,14 @@ namespace karabo {
               .commit();
 
         INT32_ELEMENT(expected)
+              .key("tickFrequency")
+              .displayedName("Tick Frequency")
+              .description("This value indicates the number of clock ticks per second.")
+              .unit(Unit::HERTZ)
+              .readOnly()
+              .commit();
+
+        INT32_ELEMENT(expected)
               .key("pollingInterval")
               .displayedName("Polling Interval")
               .description("The interval for polling the camera for read-out values.")
@@ -581,6 +589,7 @@ namespace karabo {
           m_device(nullptr),
           m_parser(nullptr),
           m_chunk_mode(false),
+          m_tick_frequency(0),
           m_width(0),
           m_height(0),
           m_buffer_size(0),
@@ -1018,9 +1027,10 @@ namespace karabo {
             }
 
             m_is_gv_device = arv_camera_is_gv_device(m_camera);
+            m_is_uv_device = arv_camera_is_uv_device(m_camera);
             if (m_is_gv_device) {
                 h.set("interfaceStandard", "GEV");
-            } else if (arv_camera_is_uv_device(m_camera)) {
+            } else if (m_is_uv_device) {
                 // Use the asynchronous libusb API for better performances
                 arv_camera_uv_set_usb_mode(m_camera, ARV_UV_USB_MODE_ASYNC);
                 h.set("interfaceStandard", "USB3V");
@@ -1028,7 +1038,7 @@ namespace karabo {
 
             // Read immutable properties
             if (m_is_gv_device) {
-                // Not available for USBV3
+                // Not available for USB3V
                 if (error == nullptr) h.set("camId", std::string(arv_camera_get_device_id(m_camera, &error)));
             }
 
@@ -1949,6 +1959,12 @@ namespace karabo {
     }
 
 
+    int AravisCamera::get_tick_frequency() {
+        // If the camera provides a "tick frequency", this function shall be overridden
+        return 0;
+    }
+
+
     bool AravisCamera::get_timestamp(ArvBuffer* buffer, karabo::data::Timestamp& ts) {
         // If the camera provides HW timestamping in chunk data, this function shall be overridden
         return false;
@@ -2568,6 +2584,9 @@ namespace karabo {
                 g_clear_error(&error);
             }
         }
+
+        m_tick_frequency = this->get_tick_frequency();
+        h.set("tickFrequency", m_tick_frequency);
 
         // Filter paths by tag "genicam" and poll features
         std::vector<std::string> paths;
