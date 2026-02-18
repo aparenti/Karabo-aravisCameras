@@ -223,7 +223,11 @@ namespace karabo {
     }
 
     bool AravisBaslerCamera::get_timestamp(ArvBuffer* buffer, karabo::data::Timestamp& ts) {
-        return AravisBaslerBase::get_timestamp(buffer, ts, "ChunkTimestamp");
+        if (m_chunk_mode) {
+            return AravisBaslerBase::get_timestamp(buffer, ts, "ChunkTimestamp");
+        } else {
+            return false;
+        }
     }
 
 } // namespace karabo
