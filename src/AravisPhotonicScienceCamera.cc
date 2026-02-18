@@ -537,7 +537,8 @@ namespace karabo {
         m_reference_karabo_time = this->getActualTimestamp();
 
         // Camera current timestamp (s)
-        m_reference_camera_timestamp = camera_timestamp / m_tick_frequency;
+        const int tick_frequency = this->get<int>("tickFrequency");
+        m_reference_camera_timestamp = camera_timestamp / tick_frequency;
 
         return true; // success
     }

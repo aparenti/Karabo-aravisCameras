@@ -589,7 +589,6 @@ namespace karabo {
           m_device(nullptr),
           m_parser(nullptr),
           m_chunk_mode(false),
-          m_tick_frequency(0),
           m_width(0),
           m_height(0),
           m_buffer_size(0),
@@ -2585,8 +2584,8 @@ namespace karabo {
             }
         }
 
-        m_tick_frequency = this->get_tick_frequency();
-        h.set("tickFrequency", m_tick_frequency);
+        const int tick_frequency = this->get_tick_frequency();
+        h.set("tickFrequency", tick_frequency);
 
         // Filter paths by tag "genicam" and poll features
         std::vector<std::string> paths;

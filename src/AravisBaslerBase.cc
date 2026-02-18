@@ -193,7 +193,8 @@ namespace karabo {
         // Elapsed time since last synchronization.
         // NB This can be negative, if the image acquisition started before
         //    synchronization, but finished after.
-        const double elapsed_t = double(timestamp - m_reference_camera_timestamp) / m_tick_frequency;
+        const int tick_frequency = this->get<int>("tickFrequency");
+        const double elapsed_t = double(timestamp - m_reference_camera_timestamp) / tick_frequency;
 
         // Split elapsed time in seconds and attoseconds, then convert to TimeDuration.
         // elapsed_t is in seconds and TimeDuration expects fractions in attoseconds,

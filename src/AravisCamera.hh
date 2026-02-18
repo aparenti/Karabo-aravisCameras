@@ -97,7 +97,6 @@ namespace karabo {
         bool m_chunk_mode;
         karabo::data::Timestamp m_reference_karabo_time;
 
-        int m_tick_frequency;
         gint m_width;
         gint m_height;
         guint m_buffer_size;
