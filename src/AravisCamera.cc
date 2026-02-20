@@ -1038,6 +1038,7 @@ namespace karabo {
                 const std::string msg("Unsupported interface standard");
                 h.set("status", msg);
                 KARABO_LOG_ERROR << msg;
+                this->set(h);
 
                 // Must unlock before 'clear_camera' is called
                 camera_lock.unlock();
@@ -1060,7 +1061,7 @@ namespace karabo {
             if (error == nullptr) h.set("model", std::string(model));
 
             // For derived classes, check that vendor and model are supported by the class
-            const bool is_supported = m_is_base_class || verify_vendor_and_model(vendor, model);
+            const bool is_supported = m_is_base_class || this->verify_vendor_and_model(vendor, model);
             if (!is_supported) {
                 this->set(h);
                 // Must unlock before 'clear_camera' is called
