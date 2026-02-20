@@ -1033,6 +1033,19 @@ namespace karabo {
                 // Use the asynchronous libusb API for better performances
                 arv_camera_uv_set_usb_mode(m_camera, ARV_UV_USB_MODE_ASYNC);
                 h.set("interfaceStandard", "USB3V");
+            } else {
+                h.set("interfaceStandard", "Unknown");
+                const std::string msg("Unsupported interface standard");
+                h.set("status", msg);
+                KARABO_LOG_ERROR << msg;
+
+                // Must unlock before 'clear_camera' is called
+                camera_lock.unlock();
+                this->clear_camera();
+                // Camera not supported -> quit connection loop
+                m_connect = false;
+                this->updateState(State::ERROR);
+                return;
             }
 
             // Read immutable properties
