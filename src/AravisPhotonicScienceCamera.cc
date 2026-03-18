@@ -538,6 +538,11 @@ namespace karabo {
 
         // Camera current timestamp (s)
         const int tick_frequency = this->get<int>("tickFrequency");
+        if (tick_frequency == 0) {
+            KARABO_LOG_ERROR << "Could not synchronize timestamp: tick_frequency is 0";
+            return false; // failure
+        }
+
         m_reference_camera_timestamp = camera_timestamp / tick_frequency;
 
         return true; // success

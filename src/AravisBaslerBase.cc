@@ -190,10 +190,16 @@ namespace karabo {
             return false; // failure
         }
 
+        const int tick_frequency = this->get<int>("tickFrequency");
+        if (tick_frequency == 0) {
+            KARABO_LOG_FRAMEWORK_ERROR << this->getInstanceId()
+                                       << ": Could not read image timestamp: tick_frequency is 0";
+            return false; // failure
+        }
+
         // Elapsed time since last synchronization.
         // NB This can be negative, if the image acquisition started before
         //    synchronization, but finished after.
-        const int tick_frequency = this->get<int>("tickFrequency");
         const double elapsed_t = double(timestamp - m_reference_camera_timestamp) / tick_frequency;
 
         // Split elapsed time in seconds and attoseconds, then convert to TimeDuration.
